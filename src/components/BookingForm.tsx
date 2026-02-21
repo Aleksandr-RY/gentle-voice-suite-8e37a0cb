@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import DateTimePicker from "@/components/DateTimePicker";
+import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -121,25 +121,24 @@ const BookingForm = () => {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div className="space-y-2">
-                <Label>Проблема *</Label>
-                <Select value={form.problem} onValueChange={(v) => update("problem", v)}>
-                  <SelectTrigger><SelectValue placeholder="Выберите проблему" /></SelectTrigger>
-                  <SelectContent>
-                    {problems.map((p) => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Предпочитаемое время</Label>
-                <DateTimePicker
-                  value={form.preferred_time}
-                  onChange={(v) => update("preferred_time", v)}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>Проблема *</Label>
+              <Select value={form.problem} onValueChange={(v) => update("problem", v)}>
+                <SelectTrigger><SelectValue placeholder="Выберите проблему" /></SelectTrigger>
+                <SelectContent>
+                  {problems.map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Предпочитаемое время</Label>
+              <AvailabilityCalendar
+                value={form.preferred_time}
+                onChange={(v) => update("preferred_time", v)}
+              />
             </div>
 
             <div className="space-y-2">
