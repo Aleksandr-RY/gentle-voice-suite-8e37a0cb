@@ -18,7 +18,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter basename={import.meta.env.MODE === "production" ? "/gentle-speak-suite" : "/"}>
+      <BrowserRouter basename={import.meta.env.MODE === "production" ? "/gentle-voice-suite-8e37a0cb" : "/"}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/admin/login" element={<AdminLogin />} />
