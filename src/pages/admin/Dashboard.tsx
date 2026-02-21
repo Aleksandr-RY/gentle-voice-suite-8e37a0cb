@@ -8,16 +8,41 @@ import HeroImageManager from "@/components/admin/HeroImageManager";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    const checkAdmin = async (userId: string) => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (data) {
+        setIsAdmin(true);
+      } else {
+        navigate("/admin/login");
+      }
+      setChecking(false);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      if (!session) navigate("/admin/login");
-      else setUser(session.user);
+      if (!session) {
+        navigate("/admin/login");
+      } else {
+        setUser(session.user);
+        checkAdmin(session.user.id);
+      }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate("/admin/login");
-      else setUser(session.user);
+      if (!session) {
+        navigate("/admin/login");
+      } else {
+        setUser(session.user);
+        checkAdmin(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -28,7 +53,7 @@ const AdminDashboard = () => {
     navigate("/admin/login");
   };
 
-  if (!user) return null;
+  if (checking || !user || !isAdmin) return null;
 
   const cards = [
     { title: "Заявки", desc: "Управление входящими заявками", icon: FileText, color: "bg-coral-light text-primary", link: "/admin/applications" },
