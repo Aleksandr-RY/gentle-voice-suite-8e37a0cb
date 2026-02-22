@@ -77,16 +77,16 @@ const BookingForm = () => {
   };
 
   return (
-    <section id="booking" className="py-16 bg-warm">
-      <div className="container mx-auto px-4">
+    <section id="booking" className="pt-20 pb-16 md:py-16 bg-warm">
+      <div className="container mx-auto px-4 pt-safe">
         <div className="max-w-lg mx-auto">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 md:mb-8 mt-2 md:mt-0">
             <h2 className="text-3xl md:text-4xl font-bold mb-2 text-foreground">Записаться на приём</h2>
             <p className="text-sm text-muted-foreground">Оставьте заявку, и мы свяжемся с вами</p>
           </div>
 
           {/* Step indicator */}
-          <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="flex items-center justify-center gap-2 mb-5 md:mb-6">
             {[
               { num: 1, icon: User, label: "Данные" },
               { num: 2, icon: CalendarDays, label: "Дата" },
