@@ -75,7 +75,6 @@ const AvailabilityCalendar = ({ value, onChange }: AvailabilityCalendarProps) =>
         data.forEach((app) => {
           const pt = app.preferred_time;
           if (!pt) return;
-          // format: "dd.MM.yyyy HH:mm–HH:mm"
           const parts = pt.split(" ");
           if (parts.length >= 2) {
             const dateKey = parts[0];
@@ -132,76 +131,78 @@ const AvailabilityCalendar = ({ value, onChange }: AvailabilityCalendarProps) =>
     onChange(`${format(selectedDate, "dd.MM.yyyy")} ${slot}`);
   };
 
-  // Calculate offset for first day (Monday-based)
   const firstDayOffset = useMemo(() => {
     const dow = getDay(days[0]);
-    return dow === 0 ? 6 : dow - 1; // Monday = 0
+    return dow === 0 ? 6 : dow - 1;
   }, [days]);
 
-  const statusStyles: Record<string, string> = {
-    free: "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-200",
-    partial: "bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200",
-    full: "bg-red-100 text-red-400 cursor-not-allowed border-red-200",
-    off: "text-muted-foreground/40 cursor-not-allowed",
-    past: "text-muted-foreground/30 cursor-not-allowed",
-  };
-
   return (
-    <div className="bg-card rounded-2xl border border-border p-4 md:p-5 space-y-4">
+    <div className="space-y-3">
       {/* Month navigation */}
       <div className="flex items-center justify-between">
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-7 w-7"
           onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
           disabled={isBefore(startOfMonth(subMonths(currentMonth, 1)), startOfMonth(new Date()))}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-3.5 w-3.5" />
         </Button>
-        <span className="text-sm font-semibold capitalize">
+        <span className="text-sm font-semibold capitalize text-foreground">
           {format(currentMonth, "LLLL yyyy", { locale: ru })}
         </span>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-7 w-7"
           onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>
 
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-0.5">
         {WEEKDAYS.map((d) => (
-          <div key={d} className="text-center text-xs font-medium text-muted-foreground py-1">
+          <div key={d} className="text-center text-[10px] font-semibold text-muted-foreground uppercase tracking-wide py-0.5">
             {d}
           </div>
         ))}
       </div>
 
-      {/* Days grid */}
-      <div className="grid grid-cols-7 gap-1">
+      {/* Days grid — compact */}
+      <div className="grid grid-cols-7 gap-0.5">
         {Array.from({ length: firstDayOffset }).map((_, i) => (
           <div key={`empty-${i}`} />
         ))}
         {days.map((day) => {
           const status = getDayStatus(day);
           const isSelected = selectedDate && isSameDay(day, selectedDate);
+          const clickable = status !== "past" && status !== "off" && status !== "full";
+
+          const statusColors: Record<string, string> = {
+            free: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200/60",
+            partial: "bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-200/60",
+            full: "bg-red-50 text-red-300 border-red-200/40",
+            off: "text-muted-foreground/30 border-transparent",
+            past: "text-muted-foreground/25 border-transparent",
+          };
+
           return (
             <button
               key={day.toISOString()}
               type="button"
               onClick={() => handleDateClick(day)}
-              disabled={status === "past" || status === "off" || status === "full"}
+              disabled={!clickable}
               className={cn(
-                "aspect-square rounded-lg text-sm font-medium transition-all border",
+                "w-full aspect-square rounded-md text-xs font-medium border transition-all duration-150",
                 "flex items-center justify-center",
-                statusStyles[status],
-                isSelected && status !== "full" && "ring-2 ring-primary ring-offset-1",
+                statusColors[status],
+                !clickable && "cursor-not-allowed",
+                isSelected && clickable && "ring-2 ring-primary ring-offset-1 shadow-sm",
                 isToday(day) && "font-bold"
               )}
             >
@@ -212,14 +213,14 @@ const AvailabilityCalendar = ({ value, onChange }: AvailabilityCalendarProps) =>
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-3 pt-1">
+      <div className="flex items-center justify-center gap-4 pt-0.5">
         {[
-          { color: "bg-emerald-100 border-emerald-200", label: "Свободно" },
-          { color: "bg-amber-100 border-amber-200", label: "Частично" },
-          { color: "bg-red-100 border-red-200", label: "Занято" },
-        ].map(({ color, label }) => (
-          <div key={label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className={cn("w-3 h-3 rounded border", color)} />
+          { cls: "bg-emerald-50 border-emerald-200", label: "Свободно" },
+          { cls: "bg-amber-50 border-amber-200", label: "Частично" },
+          { cls: "bg-red-50 border-red-200", label: "Занято" },
+        ].map(({ cls, label }) => (
+          <div key={label} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span className={cn("w-2.5 h-2.5 rounded-sm border", cls)} />
             {label}
           </div>
         ))}
@@ -228,11 +229,11 @@ const AvailabilityCalendar = ({ value, onChange }: AvailabilityCalendarProps) =>
       {/* Time slots */}
       {selectedDate && (
         <div className="pt-2 border-t border-border">
-          <p className="text-sm font-medium mb-2">
+          <p className="text-xs font-medium text-foreground mb-2">
             {format(selectedDate, "d MMMM, EEEE", { locale: ru })}
           </p>
           {availableSlots.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {availableSlots.map((slot) => {
                 const isChosen = value === `${format(selectedDate, "dd.MM.yyyy")} ${slot}`;
                 return (
@@ -241,7 +242,10 @@ const AvailabilityCalendar = ({ value, onChange }: AvailabilityCalendarProps) =>
                     type="button"
                     variant={isChosen ? "default" : "outline"}
                     size="sm"
-                    className="text-sm"
+                    className={cn(
+                      "text-xs h-7 px-2.5 rounded-md transition-all duration-150",
+                      isChosen && "shadow-sm"
+                    )}
                     onClick={() => handleSlotClick(slot)}
                   >
                     {slot}
@@ -250,14 +254,14 @@ const AvailabilityCalendar = ({ value, onChange }: AvailabilityCalendarProps) =>
               })}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Нет свободных окон</p>
+            <p className="text-xs text-muted-foreground">Нет свободных окон</p>
           )}
         </div>
       )}
 
-      {/* Selected value display */}
+      {/* Selected value */}
       {value && (
-        <p className="text-xs text-muted-foreground pt-1">
+        <p className="text-[11px] text-muted-foreground">
           Выбрано: <span className="font-medium text-foreground">{value}</span>
         </p>
       )}
