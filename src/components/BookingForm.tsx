@@ -110,7 +110,7 @@ const BookingForm = () => {
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-card rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-sm border border-border">
+          <form onSubmit={handleSubmit} className="sm:bg-card sm:rounded-2xl p-0 sm:p-5 md:p-6 sm:shadow-sm sm:border sm:border-border">
             {/* Step 1 */}
             <div className={cn("space-y-4 transition-all duration-300 ease-in-out", step === 1 ? "opacity-100 translate-y-0" : "hidden opacity-0 translate-y-2")}>
               <div className="grid sm:grid-cols-2 gap-4">
