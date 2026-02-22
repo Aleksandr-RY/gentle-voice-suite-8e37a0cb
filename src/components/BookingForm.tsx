@@ -220,15 +220,25 @@ const BookingForm = () => {
                 onChange={(v) => update("preferred_time", v)}
               />
 
-              <div className="flex gap-2 pt-1">
-                <Button type="button" variant="outline" size="default" className="h-10" onClick={() => setStep(1)}>
-                  <ArrowLeft className="w-4 h-4 mr-1" />
-                  Назад
-                </Button>
-                <Button type="submit" size="default" className="flex-1 h-10" disabled={loading}>
-                  {loading ? "Отправка..." : "Отправить заявку"}
-                </Button>
-              </div>
+              {(() => {
+                const missingFields = !form.parent_name.trim() || !form.phone || form.phone.replace(/\D/g, "").length < 10 || !form.problem;
+                return (
+                  <div className="space-y-2 pt-1">
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" size="default" className="h-10" onClick={() => setStep(1)}>
+                        <ArrowLeft className="w-4 h-4 mr-1" />
+                        Назад
+                      </Button>
+                      <Button type="submit" size="default" className="flex-1 h-10" disabled={loading || missingFields}>
+                        {loading ? "Отправка..." : "Отправить заявку"}
+                      </Button>
+                    </div>
+                    {missingFields && (
+                      <p className="text-xs text-muted-foreground text-center">Заполните обязательные поля на первом шаге</p>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </form>
         </div>
