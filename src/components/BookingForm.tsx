@@ -225,7 +225,7 @@ const BookingForm = () => {
                 return (
                   <div className="space-y-2 pt-1">
                     <div className="flex gap-2">
-                      <Button type="button" variant="outline" size="default" className="h-10" onClick={() => setStep(1)}>
+                      <Button type="button" variant="outline" size="default" className="h-10 border-emerald-300 text-emerald-700 hover:bg-emerald-50" onClick={() => setStep(1)}>
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         Назад
                       </Button>
