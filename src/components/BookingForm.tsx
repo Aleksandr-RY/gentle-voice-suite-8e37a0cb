@@ -46,15 +46,7 @@ const BookingForm = () => {
     return () => window.removeEventListener("select-problem", handler);
   }, []);
 
-  const canGoToStep2 = form.parent_name && form.phone && form.problem;
-
-  const handleNext = () => {
-    if (!canGoToStep2) {
-      toast({ title: "Заполните обязательные поля", variant: "destructive" });
-      return;
-    }
-    setStep(2);
-  };
+  const handleNext = () => setStep(2);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +94,7 @@ const BookingForm = () => {
               <button
                 key={num}
                 type="button"
-                onClick={() => num === 1 ? setStep(1) : (canGoToStep2 && setStep(2))}
+                onClick={() => setStep(num)}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
                   step === num
@@ -120,7 +112,7 @@ const BookingForm = () => {
 
           <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-5 md:p-6 shadow-sm border border-border">
             {/* Step 1 */}
-            <div className={cn("space-y-4", step !== 1 && "hidden")}>
+            <div className={cn("space-y-4 transition-all duration-300 ease-in-out", step === 1 ? "opacity-100 translate-y-0" : "hidden opacity-0 translate-y-2")}>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="parent_name" className="text-xs">Имя родителя *</Label>
@@ -186,7 +178,7 @@ const BookingForm = () => {
             </div>
 
             {/* Step 2 */}
-            <div className={cn("space-y-4", step !== 2 && "hidden")}>
+            <div className={cn("space-y-4 transition-all duration-300 ease-in-out", step === 2 ? "opacity-100 translate-y-0" : "hidden opacity-0 translate-y-2")}>
               <AvailabilityCalendar
                 value={form.preferred_time}
                 onChange={(v) => update("preferred_time", v)}
