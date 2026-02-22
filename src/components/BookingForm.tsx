@@ -78,8 +78,8 @@ const BookingForm = () => {
 
   return (
     <section id="booking" className="pt-20 pb-16 md:py-16 bg-warm">
-      <div className="mx-auto px-4 sm:px-6 md:container md:px-4 pt-safe">
-        <div className="max-w-lg md:mx-auto">
+      <div className="px-4 sm:container sm:mx-auto sm:px-6 pt-safe">
+        <div className="sm:max-w-lg sm:mx-auto">
           <div className="text-center mb-6 md:mb-8 mt-2 md:mt-0">
             <h2 className="text-3xl md:text-4xl font-bold mb-2 text-foreground">Записаться на приём</h2>
             <p className="text-sm text-muted-foreground">Оставьте заявку, и мы свяжемся с вами</p>
