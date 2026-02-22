@@ -259,11 +259,12 @@ const AvailabilityCalendar = ({ value, onChange }: AvailabilityCalendarProps) =>
         </div>
       )}
 
-      {/* Selected value */}
+      {/* Selected value chip */}
       {value && (
-        <p className="text-[11px] text-muted-foreground">
-          Выбрано: <span className="font-medium text-foreground">{value}</span>
-        </p>
+        <div className="flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700">
+          <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span className="text-xs font-medium">{value} выбрано</span>
+        </div>
       )}
     </div>
   );
