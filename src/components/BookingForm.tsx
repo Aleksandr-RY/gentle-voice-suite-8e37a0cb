@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,10 +21,18 @@ const problems = [
   "Другое",
 ];
 
+type FieldErrors = {
+  parent_name?: string;
+  phone?: string;
+  problem?: string;
+};
+
 const BookingForm = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const fieldRefs = useRef<Record<string, HTMLElement | null>>({});
   const [form, setForm] = useState({
     parent_name: "",
     phone: "",
@@ -35,7 +43,12 @@ const BookingForm = () => {
     comment: "",
   });
 
-  const update = (field: string, value: string) => setForm((p) => ({ ...p, [field]: value }));
+  const update = (field: string, value: string) => {
+    setForm((p) => ({ ...p, [field]: value }));
+    if (errors[field as keyof FieldErrors]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -48,12 +61,32 @@ const BookingForm = () => {
 
   const handleNext = () => setStep(2);
 
+  const validate = (): boolean => {
+    const newErrors: FieldErrors = {};
+    if (!form.parent_name.trim()) newErrors.parent_name = "Введите имя";
+    if (!form.phone || form.phone.replace(/\D/g, "").length < 10) newErrors.phone = "Введите номер телефона";
+    if (!form.problem) newErrors.problem = "Выберите проблему";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      // Switch to step 1 and scroll to first error
+      setStep(1);
+      const firstErrorField = Object.keys(newErrors)[0];
+      setTimeout(() => {
+        const el = fieldRefs.current[firstErrorField];
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.parent_name || !form.phone || !form.problem) {
-      toast({ title: "Заполните обязательные поля", variant: "destructive" });
-      return;
-    }
+    if (!validate()) return;
     setLoading(true);
     try {
       const { error } = await supabase.from("applications").insert({
@@ -114,14 +147,15 @@ const BookingForm = () => {
             {/* Step 1 */}
             <div className={cn("space-y-4 transition-all duration-300 ease-in-out", step === 1 ? "opacity-100 translate-y-0" : "hidden opacity-0 translate-y-2")}>
               <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5" ref={(el) => { fieldRefs.current.parent_name = el; }}>
                   <Label htmlFor="parent_name" className="text-xs">Имя родителя *</Label>
-                  <Input id="parent_name" value={form.parent_name} onChange={(e) => update("parent_name", e.target.value)} placeholder="Анна" className="h-9 text-sm" />
+                  <Input id="parent_name" value={form.parent_name} onChange={(e) => update("parent_name", e.target.value)} placeholder="Анна" className={cn("h-9 text-sm", errors.parent_name && "border-destructive ring-destructive/30 ring-2")} />
+                  {errors.parent_name && <p className="text-xs text-destructive mt-0.5">{errors.parent_name}</p>}
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5" ref={(el) => { fieldRefs.current.phone = el; }}>
                   <Label htmlFor="phone" className="text-xs">Телефон *</Label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-2.5 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-xs">+7</span>
+                    <span className={cn("inline-flex items-center px-2.5 rounded-l-md border border-r-0 bg-muted text-muted-foreground text-xs", errors.phone ? "border-destructive" : "border-input")}>+7</span>
                     <Input
                       id="phone"
                       type="tel"
@@ -137,9 +171,10 @@ const BookingForm = () => {
                         update("phone", formatted);
                       }}
                       placeholder="(___)-___-__-__"
-                      className="rounded-l-none h-9 text-sm"
+                      className={cn("rounded-l-none h-9 text-sm", errors.phone && "border-destructive ring-destructive/30 ring-2")}
                     />
                   </div>
+                  {errors.phone && <p className="text-xs text-destructive mt-0.5">{errors.phone}</p>}
                 </div>
               </div>
 
@@ -154,16 +189,17 @@ const BookingForm = () => {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" ref={(el) => { fieldRefs.current.problem = el; }}>
                 <Label className="text-xs">Проблема *</Label>
                 <Select value={form.problem} onValueChange={(v) => update("problem", v)}>
-                  <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Выберите проблему" /></SelectTrigger>
+                  <SelectTrigger className={cn("h-9 text-sm", errors.problem && "border-destructive ring-destructive/30 ring-2")}><SelectValue placeholder="Выберите проблему" /></SelectTrigger>
                   <SelectContent>
                     {problems.map((p) => (
                       <SelectItem key={p} value={p}>{p}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.problem && <p className="text-xs text-destructive mt-0.5">{errors.problem}</p>}
               </div>
 
               <div className="space-y-1.5">
